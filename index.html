@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methadone Dose Calculator</title>
+    <meta name="description" content="Calculate methadone dose adjustments based on missed dosing days">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Methadone Dose Calculator</h1>
+            <p class="subtitle">Dose Adjustment for Missed Days</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Calculator Section -->
+            <section class="calculator-card">
+                <h2>Calculate Restart Dose</h2>
+                
+                <form id="calculatorForm" class="calculator-form">
+                    <div class="input-group">
+                        <label for="lastDose">Last Verified Dose (mg)</label>
+                        <input 
+                            type="number" 
+                            id="lastDose" 
+                            name="lastDose" 
+                            min="1" 
+                            step="1" 
+                            placeholder="Enter dose in mg"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="daysAbsent">Consecutive Days Absent</label>
+                        <input 
+                            type="number" 
+                            id="daysAbsent" 
+                            name="daysAbsent" 
+                            min="1" 
+                            max="30"
+                            step="1" 
+                            placeholder="Enter days missed"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <button type="submit" class="calculate-btn">
+                        <span class="btn-text">Calculate Restart Dose</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </form>
+
+                <!-- Result Display -->
+                <div id="resultContainer" class="result-container hidden">
+                    <div id="resultCard" class="result-card">
+                        <div class="result-header">
+                            <span id="resultIcon" class="result-icon"></span>
+                            <span id="resultLabel" class="result-label"></span>
+                        </div>
+                        <div id="resultValue" class="result-value"></div>
+                        <div id="resultDetails" class="result-details"></div>
+                        <div id="resultWarning" class="result-warning hidden"></div>
+                    </div>
+                </div>
+
+                <button type="button" id="clearFormBtn" class="clear-form-btn hidden">
+                    Clear & New Calculation
+                </button>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-card">
+                <div class="history-header">
+                    <h2>Calculation History</h2>
+                    <button type="button" id="clearHistoryBtn" class="clear-history-btn">
+                        Clear History
+                    </button>
+                </div>
+                
+                <div id="historyList" class="history-list">
+                    <p class="history-empty">No calculations yet</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p class="disclaimer">
+                <strong>Clinical Disclaimer:</strong> This calculator is a decision-support tool only. 
+                Always verify results against clinical judgment and consult the provider when indicated.
+            </p>
+        </footer>
+    </div>
+
+    <script src="calculator.js"></script>
+</body>
+</html>
