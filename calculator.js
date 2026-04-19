@@ -16,6 +16,17 @@ const DOSE_REDUCTIONS = {
 // ===== Storage Key =====
 const HISTORY_KEY = 'methadone_calc_history';
 
+// Valid status values for class attribute sanitization
+const VALID_STATUSES = ['success', 'warning', 'danger', 'info'];
+
+// Status icons shared between result display and history
+const STATUS_ICONS = {
+    success: '\u2713',
+    warning: '\u26A0',
+    danger: '\u2695',
+    info: '\u2192'
+};
+
 // ===== DOM Elements =====
 const form = document.getElementById('calculatorForm');
 const lastDoseInput = document.getElementById('lastDose');
@@ -31,19 +42,75 @@ const clearFormBtn = document.getElementById('clearFormBtn');
 const historyList = document.getElementById('historyList');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
+// ===== Utility Functions =====
+
+/**
+ * Escapes a string for safe HTML interpolation
+ * @param {*} value - Value to escape
+ * @returns {string} - HTML-safe string
+ */
+function escapeHTML(value) {
+    const div = document.createElement('div');
+    div.textContent = String(value);
+    return div.innerHTML;
+}
+
+// ===== Inline Validation =====
+
+/**
+ * Shows an inline error message below an input
+ * @param {HTMLInputElement} input - The input element
+ * @param {string} message - Error message to display
+ */
+function showError(input, message) {
+    const group = input.closest('.input-group');
+    group.classList.add('has-error');
+    const errorEl = group.querySelector('.input-error');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    }
+    input.setAttribute('aria-invalid', 'true');
+}
+
+/**
+ * Clears the error state from an input
+ * @param {HTMLInputElement} input - The input element
+ */
+function clearError(input) {
+    const group = input.closest('.input-group');
+    group.classList.remove('has-error');
+    const errorEl = group.querySelector('.input-error');
+    if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+    }
+    input.removeAttribute('aria-invalid');
+}
+
+/**
+ * Clears all validation errors
+ */
+function clearAllErrors() {
+    clearError(lastDoseInput);
+    clearError(daysAbsentInput);
+}
+
 // ===== Core Calculation Logic =====
 
 /**
- * Determines the dose range key for lookup
+ * Determines the dose range key for lookup.
+ * Uses continuous ranges (no gaps between boundaries) so fractional
+ * doses like 100.5mg map correctly.
  * @param {number} dose - The last verified dose in mg
  * @returns {string|null} - The dose range key or null if out of range
  */
 function getDoseRangeKey(dose) {
     if (dose >= 30 && dose <= 100) return '30-100';
-    if (dose >= 101 && dose <= 150) return '101-150';
-    if (dose >= 151 && dose <= 200) return '151-200';
-    if (dose >= 201 && dose <= 250) return '201-250';
-    if (dose >= 251 && dose <= 300) return '251-300';
+    if (dose > 100 && dose <= 150) return '101-150';
+    if (dose > 150 && dose <= 200) return '151-200';
+    if (dose > 200 && dose <= 250) return '201-250';
+    if (dose > 250 && dose <= 300) return '251-300';
     return null;
 }
 
@@ -59,7 +126,7 @@ function calculateRestartDose(lastDose, daysAbsent) {
         daysAbsent: daysAbsent,
         restartDose: null,
         reduction: 0,
-        status: 'success', // success, warning, danger, info
+        status: 'success',
         message: '',
         details: '',
         showVerificationReminder: false
@@ -108,7 +175,7 @@ function calculateRestartDose(lastDose, daysAbsent) {
         }
 
         const rangeKey = getDoseRangeKey(lastDose);
-        
+
         if (rangeKey && DOSE_REDUCTIONS[rangeKey]) {
             const reduction = DOSE_REDUCTIONS[rangeKey][daysAbsent];
             result.reduction = reduction;
@@ -123,7 +190,7 @@ function calculateRestartDose(lastDose, daysAbsent) {
             }
 
             result.restartDose = calculatedDose;
-            result.details = `${lastDose}mg − ${reduction}mg reduction = ${calculatedDose}mg`;
+            result.details = `${lastDose}mg \u2212 ${reduction}mg reduction = ${calculatedDose}mg`;
 
             // Rule: If result < 50mg - show verification reminder
             if (calculatedDose < 50) {
@@ -135,10 +202,9 @@ function calculateRestartDose(lastDose, daysAbsent) {
                 result.message = `${calculatedDose} mg`;
             }
         } else {
-            // Dose outside defined ranges (shouldn't happen with current rules)
             result.status = 'danger';
             result.message = 'SEE PROVIDER';
-            result.details = 'Dose outside standard ranges - consult provider';
+            result.details = 'Dose outside standard ranges \u2014 consult provider';
         }
     }
 
@@ -156,13 +222,7 @@ function displayResult(result) {
     resultCard.className = 'result-card ' + result.status;
 
     // Set icon based on status
-    const icons = {
-        success: '✓',
-        warning: '⚠',
-        danger: '⚕',
-        info: '→'
-    };
-    resultIcon.textContent = icons[result.status] || '•';
+    resultIcon.textContent = STATUS_ICONS[result.status] || '\u2022';
 
     // Set label based on status
     const labels = {
@@ -179,17 +239,24 @@ function displayResult(result) {
 
     // Show/hide verification reminder
     if (result.showVerificationReminder) {
-        resultWarning.innerHTML = `<strong>⚠ Verification Required:</strong> Restart dose is below 50mg. 
-            Please verify appropriateness against patient's previous stable dose and initiation/induction dose. 
-            Contact provider if there is any discrepancy.`;
+        resultWarning.textContent = '';
+        const strong = document.createElement('strong');
+        strong.textContent = '\u26A0 Verification Required: ';
+        resultWarning.appendChild(strong);
+        resultWarning.appendChild(document.createTextNode(
+            'Restart dose is below 50mg. Please verify appropriateness against patient\u2019s previous stable dose and initiation/induction dose. Contact provider if there is any discrepancy.'
+        ));
         resultWarning.classList.remove('hidden');
     } else {
         resultWarning.classList.add('hidden');
     }
 
-    // Show result container
+    // Show result container and clear button
     resultContainer.classList.remove('hidden');
     clearFormBtn.classList.remove('hidden');
+
+    // Move focus to result for keyboard/screen reader users
+    resultCard.focus();
 }
 
 /**
@@ -197,6 +264,7 @@ function displayResult(result) {
  */
 function clearForm() {
     form.reset();
+    clearAllErrors();
     resultContainer.classList.add('hidden');
     clearFormBtn.classList.add('hidden');
     lastDoseInput.focus();
@@ -231,12 +299,23 @@ function saveHistory(history) {
 }
 
 /**
- * Adds a calculation to history
+ * Adds a calculation to history.
+ * Skips duplicate entries if the most recent calculation has identical inputs/output.
  * @param {Object} result - The calculation result
  */
 function addToHistory(result) {
     const history = loadHistory();
-    
+
+    // Skip duplicate if identical to most recent entry
+    if (history.length > 0) {
+        const last = history[0];
+        if (last.originalDose === result.originalDose &&
+            last.daysAbsent === result.daysAbsent &&
+            last.message === result.message) {
+            return;
+        }
+    }
+
     const historyItem = {
         id: Date.now(),
         timestamp: new Date().toISOString(),
@@ -248,16 +327,14 @@ function addToHistory(result) {
         message: result.message
     };
 
-    // Add to beginning of array (most recent first)
     history.unshift(historyItem);
 
-    // Keep only last 50 items
     if (history.length > 50) {
         history.pop();
     }
 
     saveHistory(history);
-    renderHistory();
+    renderHistory(history);
 }
 
 /**
@@ -278,28 +355,43 @@ function formatTimestamp(isoString) {
 }
 
 /**
- * Renders the history list
+ * Renders the history list with escaped values.
+ * Accepts optional pre-loaded history to avoid redundant localStorage reads.
+ * @param {Array} [historyData] - Pre-loaded history array (optional)
  */
-function renderHistory() {
-    const history = loadHistory();
+function renderHistory(historyData) {
+    const history = historyData || loadHistory();
 
     if (history.length === 0) {
         historyList.innerHTML = '<p class="history-empty">No calculations yet</p>';
         return;
     }
 
-    historyList.innerHTML = history.map(item => `
-        <div class="history-item ${item.status}">
-            <div class="history-item-header">
-                <span class="history-item-result">${item.message}</span>
-                <span class="history-item-time">${formatTimestamp(item.timestamp)}</span>
+    historyList.innerHTML = history.map(item => {
+        // Sanitize status to a known value for use in class attribute
+        const safeStatus = VALID_STATUSES.includes(item.status) ? item.status : '';
+        const icon = escapeHTML(STATUS_ICONS[item.status] || '\u2022');
+        const msg = escapeHTML(item.message);
+        const time = escapeHTML(formatTimestamp(item.timestamp));
+        const dose = escapeHTML(item.originalDose);
+        const days = escapeHTML(item.daysAbsent);
+        const dayLabel = item.daysAbsent !== 1 ? 's' : '';
+        const reduction = item.reduction > 0
+            ? ` (\u2212${escapeHTML(item.reduction)}mg)`
+            : '';
+
+        return `
+            <div class="history-item ${safeStatus}">
+                <div class="history-item-header">
+                    <span class="history-item-result"><span class="history-status-icon" aria-hidden="true">${icon}</span> ${msg}</span>
+                    <span class="history-item-time">${time}</span>
+                </div>
+                <div class="history-item-details">
+                    ${dose}mg dose, ${days} day${dayLabel} absent${reduction}
+                </div>
             </div>
-            <div class="history-item-details">
-                ${item.originalDose}mg dose, ${item.daysAbsent} day${item.daysAbsent !== 1 ? 's' : ''} absent
-                ${item.reduction > 0 ? ` (−${item.reduction}mg)` : ''}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 /**
@@ -308,7 +400,7 @@ function renderHistory() {
 function clearHistory() {
     if (confirm('Clear all calculation history?')) {
         localStorage.removeItem(HISTORY_KEY);
-        renderHistory();
+        renderHistory([]);
     }
 }
 
@@ -316,28 +408,34 @@ function clearHistory() {
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
+    clearAllErrors();
 
-    const lastDose = parseFloat(lastDoseInput.value);
+    // Round to nearest integer to match clinical dose table ranges
+    const lastDose = Math.round(parseFloat(lastDoseInput.value));
     const daysAbsent = parseInt(daysAbsentInput.value, 10);
 
-    // Validate inputs
+    let hasError = false;
+
     if (isNaN(lastDose) || lastDose <= 0) {
-        alert('Please enter a valid dose (positive number)');
-        lastDoseInput.focus();
-        return;
+        showError(lastDoseInput, 'Enter a valid dose (positive number)');
+        hasError = true;
     }
 
     if (isNaN(daysAbsent) || daysAbsent < 1) {
-        alert('Please enter valid days absent (1 or more)');
-        daysAbsentInput.focus();
-        return;
+        showError(daysAbsentInput, 'Enter valid days absent (1 or more)');
+        hasError = true;
     }
 
-    // Calculate and display result
+    if (hasError) return;
+
     const result = calculateRestartDose(lastDose, daysAbsent);
     displayResult(result);
     addToHistory(result);
 });
+
+// Clear inline errors as the user types
+lastDoseInput.addEventListener('input', function() { clearError(this); });
+daysAbsentInput.addEventListener('input', function() { clearError(this); });
 
 clearFormBtn.addEventListener('click', clearForm);
 clearHistoryBtn.addEventListener('click', clearHistory);
