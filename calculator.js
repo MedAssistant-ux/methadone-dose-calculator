@@ -768,9 +768,22 @@ function initNoteGenerator() {
     regenerateNote();
 }
 
+function initInventoryTrigger() {
+    const trigger = document.getElementById('inventoryTrigger');
+    if (!trigger) return;
+    trigger.addEventListener('click', () => {
+        const code = window.prompt('Enter access code:');
+        if (code === null) return;
+        if (code.trim() === '1118') {
+            window.open('https://medassistant-ux.github.io/nmts-inventory/', '_blank', 'noopener,noreferrer');
+        }
+    });
+}
+
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', function() {
     renderHistory();
     initNoteGenerator();
+    initInventoryTrigger();
     lastDoseInput.focus();
 });

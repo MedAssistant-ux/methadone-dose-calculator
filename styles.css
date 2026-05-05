@@ -1013,68 +1013,10 @@ textarea.note-preview:focus {
     color: var(--danger-600);
 }
 
-/* ===== Tool Link Buttons ===== */
-.tool-links {
-    display: flex;
-    gap: var(--space-2);
-    justify-content: center;
-    margin-top: var(--space-4);
-    flex-wrap: wrap;
-}
-
-.inventory-btn,
-.howto-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius-md);
+/* ===== Hidden Inventory Trigger ===== */
+.inventory-trigger {
     cursor: pointer;
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-md);
-    text-decoration: none;
-    font-family: var(--font-family);
-}
-
-.inventory-btn {
-    background: var(--accent-600);
-}
-
-.inventory-btn:hover {
-    background: var(--accent-700);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-.howto-btn {
-    background: var(--link-600);
-}
-
-.howto-btn:hover {
-    background: var(--link-700);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-.inventory-btn:active,
-.howto-btn:active {
-    transform: translateY(0);
-}
-
-.inventory-btn .btn-icon,
-.howto-btn .btn-icon {
-    font-size: var(--font-size-base);
-    transition: transform var(--transition-fast);
-}
-
-.inventory-btn:hover .btn-icon,
-.howto-btn:hover .btn-icon {
-    transform: translateX(4px);
+    color: inherit;
 }
 
 /* ===== Utility Classes ===== */
