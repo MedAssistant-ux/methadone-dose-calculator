@@ -88,6 +88,182 @@
                 </button>
             </section>
 
+            <!-- Dosing Chart Section -->
+            <aside class="dosing-chart-card">
+                <details id="chartDetails">
+                    <summary>
+                        <div class="chart-summary-title">
+                            <h2>Dosing Chart</h2>
+                            <span class="chart-subtitle">Dosing Orders for Decreasing Steps by Dose Range for AWOL (Methadone)</span>
+                        </div>
+                        <span class="chart-toggle-icon" aria-hidden="true">&#9662;</span>
+                    </summary>
+
+                    <div class="chart-scroll">
+                    <table class="chart-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Client Dose</th>
+                                <th scope="col">Days absent / Arrives on day…</th>
+                                <th scope="col">Decrease dose by…</th>
+                            </tr>
+                        </thead>
+
+                        <tbody data-range="30-100">
+                            <tr data-days="2">
+                                <th rowspan="7" scope="rowgroup" class="chart-range-label">30–100 mg</th>
+                                <td class="chart-days"><strong>Absent 2 days</strong><em>Arrives at clinic on day 3</em></td>
+                                <td class="chart-reduction">5 mg</td>
+                            </tr>
+                            <tr data-days="3">
+                                <td class="chart-days"><strong>Absent 3 days</strong><em>Arrives at clinic on day 4</em></td>
+                                <td class="chart-reduction">10 mg</td>
+                            </tr>
+                            <tr data-days="4">
+                                <td class="chart-days"><strong>Absent 4 days</strong><em>Arrives at clinic on day 5</em></td>
+                                <td class="chart-reduction">15 mg</td>
+                            </tr>
+                            <tr data-days="5">
+                                <td class="chart-days"><strong>Absent 5 days</strong><em>Arrives at clinic on day 6</em></td>
+                                <td class="chart-reduction">20 mg</td>
+                            </tr>
+                            <tr data-days="6">
+                                <td class="chart-days"><strong>Absent 6 days</strong><em>Arrives at clinic on day 7</em></td>
+                                <td class="chart-reduction">25 mg</td>
+                            </tr>
+                            <tr data-days="7+">
+                                <td class="chart-days"><strong>Absent 7 or more days</strong><em>Arrives at clinic on day 8 or greater</em></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                            <tr class="chart-note-row">
+                                <td colspan="2" class="chart-note">***If the decrease is &lt;30, then just give 30mg</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody data-range="101-150">
+                            <tr data-days="2">
+                                <th rowspan="6" scope="rowgroup" class="chart-range-label">101–150 mg</th>
+                                <td class="chart-days"><strong>Absent 2 days</strong><em>Arrives at clinic on day 3</em></td>
+                                <td class="chart-reduction">10 mg</td>
+                            </tr>
+                            <tr data-days="3">
+                                <td class="chart-days"><strong>Absent 3 days</strong><em>Arrives at clinic on day 4</em></td>
+                                <td class="chart-reduction">20 mg</td>
+                            </tr>
+                            <tr data-days="4">
+                                <td class="chart-days"><strong>Absent 4 days</strong><em>Arrives at clinic on day 5</em></td>
+                                <td class="chart-reduction">30 mg</td>
+                            </tr>
+                            <tr data-days="5">
+                                <td class="chart-days"><strong>Absent 5 days</strong><em>Arrives at clinic on day 6</em></td>
+                                <td class="chart-reduction">40 mg</td>
+                            </tr>
+                            <tr data-days="6">
+                                <td class="chart-days"><strong>Absent 6 days</strong><em>Arrives at clinic on day 7</em></td>
+                                <td class="chart-reduction">50 mg</td>
+                            </tr>
+                            <tr data-days="7+">
+                                <td class="chart-days"><strong>Absent 7 or more days</strong><em>Arrives at clinic on day 8 or greater</em></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody data-range="151-200">
+                            <tr data-days="2">
+                                <th rowspan="6" scope="rowgroup" class="chart-range-label">151–200 mg</th>
+                                <td class="chart-days"><strong>Absent 2 days</strong><em>Arrives at clinic on day 3</em></td>
+                                <td class="chart-reduction">15 mg</td>
+                            </tr>
+                            <tr data-days="3">
+                                <td class="chart-days"><strong>Absent 3 days</strong><em>Arrives at clinic on day 4</em></td>
+                                <td class="chart-reduction">30 mg</td>
+                            </tr>
+                            <tr data-days="4">
+                                <td class="chart-days"><strong>Absent 4 days</strong><em>Arrives at clinic on day 5</em></td>
+                                <td class="chart-reduction">45 mg</td>
+                            </tr>
+                            <tr data-days="5">
+                                <td class="chart-days"><strong>Absent 5 days</strong><em>Arrives at clinic on day 6</em></td>
+                                <td class="chart-reduction">60 mg</td>
+                            </tr>
+                            <tr data-days="6">
+                                <td class="chart-days"><strong>Absent 6 days</strong><em>Arrives at clinic on day 7</em></td>
+                                <td class="chart-reduction">75 mg</td>
+                            </tr>
+                            <tr data-days="7+">
+                                <td class="chart-days"><strong>Absent 7 or more days</strong><em>Arrives at clinic on day 8 or greater</em></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody data-range="201-250">
+                            <tr data-days="2">
+                                <th rowspan="6" scope="rowgroup" class="chart-range-label">201–250 mg</th>
+                                <td class="chart-days"><strong>Absent 2 days</strong><em>Arrives at clinic on day 3</em></td>
+                                <td class="chart-reduction">20 mg</td>
+                            </tr>
+                            <tr data-days="3">
+                                <td class="chart-days"><strong>Absent 3 days</strong><em>Arrives at clinic on day 4</em></td>
+                                <td class="chart-reduction">40 mg</td>
+                            </tr>
+                            <tr data-days="4">
+                                <td class="chart-days"><strong>Absent 4 days</strong><em>Arrives at clinic on day 5</em></td>
+                                <td class="chart-reduction">60 mg</td>
+                            </tr>
+                            <tr data-days="5">
+                                <td class="chart-days"><strong>Absent 5 days</strong><em>Arrives at clinic on day 6</em></td>
+                                <td class="chart-reduction">80 mg</td>
+                            </tr>
+                            <tr data-days="6">
+                                <td class="chart-days"><strong>Absent 6 days</strong><em>Arrives at clinic on day 7</em></td>
+                                <td class="chart-reduction">100 mg</td>
+                            </tr>
+                            <tr data-days="7+">
+                                <td class="chart-days"><strong>Absent 7 or more days</strong><em>Arrives at clinic on day 8 or greater</em></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody data-range="251-300">
+                            <tr data-days="2">
+                                <th rowspan="6" scope="rowgroup" class="chart-range-label">251–300 mg</th>
+                                <td class="chart-days"><strong>Absent 2 days</strong><em>Arrives at clinic on day 3</em></td>
+                                <td class="chart-reduction">25 mg</td>
+                            </tr>
+                            <tr data-days="3">
+                                <td class="chart-days"><strong>Absent 3 days</strong><em>Arrives at clinic on day 4</em></td>
+                                <td class="chart-reduction">50 mg</td>
+                            </tr>
+                            <tr data-days="4">
+                                <td class="chart-days"><strong>Absent 4 days</strong><em>Arrives at clinic on day 5</em></td>
+                                <td class="chart-reduction">75 mg</td>
+                            </tr>
+                            <tr data-days="5">
+                                <td class="chart-days"><strong>Absent 5 days</strong><em>Arrives at clinic on day 6</em></td>
+                                <td class="chart-reduction">100 mg</td>
+                            </tr>
+                            <tr data-days="6">
+                                <td class="chart-days"><strong>Absent 6 days</strong><em>Arrives at clinic on day 7</em></td>
+                                <td class="chart-reduction">125 mg</td>
+                            </tr>
+                            <tr data-days="7+">
+                                <td class="chart-days"><strong>Absent 7 or more days</strong><em>Arrives at clinic on day 8 or greater</em></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                        </tbody>
+
+                        <tbody data-range="over-300">
+                            <tr data-days="2+">
+                                <th scope="rowgroup" class="chart-range-label">&gt;300 mg</th>
+                                <td class="chart-days"><strong>Absent 2 or more days</strong></td>
+                                <td class="chart-reduction provider-required">Must contact medical provider for orders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                </details>
+            </aside>
+
             <!-- History Section -->
             <section class="history-card">
                 <div class="history-header">
@@ -102,6 +278,114 @@
                 </div>
             </section>
         </main>
+
+            <!-- Patient Note Generator -->
+            <section class="note-card" aria-labelledby="noteTitle">
+                <div class="note-header">
+                    <h2 id="noteTitle">Patient Note</h2>
+                </div>
+
+                <div class="note-body">
+                    <div class="note-fields">
+                        <div class="note-row">
+                            <div class="input-group">
+                                <label for="noteDays">Days no show</label>
+                                <input
+                                    type="number"
+                                    id="noteDays"
+                                    min="1"
+                                    step="1"
+                                    inputmode="numeric"
+                                    placeholder="Auto-fills from calculator"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="input-group">
+                                <label for="noteDose">Reinstate at (mg)</label>
+                                <input
+                                    type="number"
+                                    id="noteDose"
+                                    min="1"
+                                    step="1"
+                                    inputmode="numeric"
+                                    placeholder="Auto-fills from calculator"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <span class="note-label">Reason for no show</span>
+                            <div class="reason-chips" role="group" aria-label="Reason">
+                                <button type="button" class="reason-chip" data-reason="transportation issues">Transportation issues</button>
+                                <button type="button" class="reason-chip" data-reason="schedule conflict">Schedule conflict</button>
+                                <button type="button" class="reason-chip" data-reason="personal issues">Personal issues</button>
+                                <button type="button" class="reason-chip" data-reason="__other__">Other…</button>
+                            </div>
+                            <input
+                                type="text"
+                                id="noteReasonOther"
+                                class="reason-other hidden"
+                                placeholder="Specify reason"
+                                autocomplete="off"
+                                maxlength="120"
+                            >
+                        </div>
+
+                        <div class="note-row">
+                            <div class="input-group">
+                                <label for="noteIncrease">Increase by (mg)</label>
+                                <input
+                                    type="number"
+                                    id="noteIncrease"
+                                    min="1"
+                                    step="1"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="input-group">
+                                <label for="noteFreq">Every (days)</label>
+                                <input
+                                    type="number"
+                                    id="noteFreq"
+                                    min="1"
+                                    step="1"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="noteDoctor">Doctor name (remembered)</label>
+                            <input
+                                type="text"
+                                id="noteDoctor"
+                                placeholder="e.g., Smith"
+                                autocomplete="off"
+                                maxlength="80"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="note-preview-wrapper">
+                        <span class="note-label">Generated Note</span>
+                        <div id="notePreview" class="note-preview" aria-live="polite"></div>
+                        <div class="note-actions">
+                            <button type="button" id="copyNoteBtn" class="copy-note-btn">
+                                <span class="btn-text">Copy Note</span>
+                                <span class="btn-icon">&#128203;</span>
+                            </button>
+                            <button type="button" id="resetNoteBtn" class="reset-note-btn">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
         <footer class="app-footer">
             <p class="disclaimer">

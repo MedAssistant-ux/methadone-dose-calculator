@@ -131,6 +131,12 @@ body {
     }
 }
 
+@media (min-width: 1024px) {
+    .app-container {
+        max-width: 1280px;
+    }
+}
+
 /* ===== Header ===== */
 .app-header {
     text-align: center;
@@ -167,20 +173,36 @@ body {
 .main-content {
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-areas:
+        "calc"
+        "chart"
+        "history"
+        "note";
     gap: var(--space-6);
     flex: 1;
 }
 
-@media (min-width: 768px) {
+.calculator-card { grid-area: calc; }
+.dosing-chart-card { grid-area: chart; }
+.history-card { grid-area: history; }
+.note-card { grid-area: note; }
+
+@media (min-width: 1024px) {
     .main-content {
-        grid-template-columns: 1.2fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+        grid-template-areas:
+            "calc chart"
+            "history history"
+            "note note";
         align-items: start;
     }
 }
 
 /* ===== Card Base Styles ===== */
 .calculator-card,
-.history-card {
+.history-card,
+.dosing-chart-card,
+.note-card {
     background: var(--white);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
@@ -189,7 +211,8 @@ body {
     overflow: hidden;
 }
 
-.calculator-card h2 {
+.calculator-card h2,
+.dosing-chart-card h2 {
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--white);
@@ -441,6 +464,195 @@ body {
     text-align: left;
 }
 
+/* ===== Dosing Chart ===== */
+.dosing-chart-card details {
+    /* native disclosure widget; we restyle the summary */
+}
+
+.dosing-chart-card summary {
+    list-style: none;
+    cursor: pointer;
+    background: var(--accent-600);
+    color: var(--white);
+    padding: var(--space-3) var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    transition: background var(--transition-fast);
+}
+
+.dosing-chart-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.dosing-chart-card summary:hover {
+    background: var(--accent-700);
+}
+
+.dosing-chart-card summary:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: -4px;
+}
+
+.chart-summary-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chart-summary-title h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.chart-summary-title .chart-subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--accent-100);
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.chart-toggle-icon {
+    font-size: var(--font-size-xl);
+    line-height: 1;
+    transition: transform var(--transition-normal);
+    color: var(--white);
+    flex-shrink: 0;
+}
+
+.dosing-chart-card details[open] .chart-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.chart-scroll {
+    overflow-x: auto;
+    padding: var(--space-2) 0;
+}
+
+.chart-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+}
+
+.chart-table thead th {
+    background: var(--primary-100);
+    color: var(--primary-800);
+    font-weight: 700;
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 2px solid var(--primary-300);
+    white-space: nowrap;
+}
+
+.chart-table tbody {
+    transition: background-color var(--transition-fast);
+}
+
+.chart-table tbody + tbody {
+    border-top: 2px solid var(--gray-200);
+}
+
+.chart-table tbody td,
+.chart-table tbody th {
+    padding: var(--space-3) var(--space-4);
+    vertical-align: top;
+    border-top: 1px solid var(--gray-200);
+}
+
+.chart-table tbody tr:first-child td,
+.chart-table tbody tr:first-child th {
+    border-top: none;
+}
+
+.chart-range-label {
+    font-weight: 700;
+    color: var(--primary-800);
+    background: var(--gray-50);
+    border-right: 1px solid var(--gray-200);
+    white-space: nowrap;
+    text-align: left;
+    font-size: var(--font-size-base);
+    min-width: 90px;
+}
+
+.chart-days {
+    line-height: 1.4;
+}
+
+.chart-days strong {
+    display: block;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.chart-days em {
+    display: block;
+    font-style: italic;
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+    margin-top: 2px;
+}
+
+.chart-reduction {
+    font-weight: 600;
+    color: var(--accent-700);
+    white-space: nowrap;
+}
+
+.chart-reduction.provider-required {
+    color: var(--danger-600);
+    font-style: italic;
+    font-weight: 500;
+    white-space: normal;
+}
+
+.chart-note-row td {
+    background: var(--warning-50);
+    color: var(--warning-600);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    font-style: italic;
+    border-top: 1px dashed var(--warning-500);
+}
+
+/* Highlight: active range gets soft tint */
+.chart-table tbody.range-active {
+    background: var(--accent-50);
+}
+
+.chart-table tbody.range-active .chart-range-label {
+    background: var(--accent-100);
+    color: var(--accent-700);
+    border-right-color: var(--accent-500);
+}
+
+/* Highlight: active row gets strong emerald treatment */
+.chart-table tbody.range-active tr.row-active td,
+.chart-table tbody.range-active tr.row-active th {
+    background: var(--accent-100);
+    box-shadow: inset 4px 0 0 var(--accent-600);
+}
+
+.chart-table tbody.range-active tr.row-active .chart-days strong,
+.chart-table tbody.range-active tr.row-active .chart-reduction {
+    color: var(--accent-700);
+    font-weight: 700;
+}
+
+.chart-table tbody.range-active tr.row-active .chart-reduction.provider-required {
+    color: var(--danger-600);
+}
+
 /* ===== History Section ===== */
 .history-header {
     display: flex;
@@ -535,6 +747,228 @@ body {
 .history-item-details {
     font-size: var(--font-size-sm);
     color: var(--gray-600);
+}
+
+/* ===== Note Generator ===== */
+.note-card .note-header {
+    background: var(--primary-700);
+    padding: var(--space-3) var(--space-5);
+}
+
+.note-card h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+}
+
+.note-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    padding: var(--space-5);
+}
+
+@media (min-width: 768px) {
+    .note-body {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+.note-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.note-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+.note-fields .input-group input {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    background: var(--white);
+    color: var(--gray-900);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+}
+
+.note-fields .input-group input:hover {
+    border-color: var(--gray-400);
+}
+
+.note-fields .input-group input:focus {
+    outline: none;
+    border-color: var(--accent-500);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.note-fields .input-group input::placeholder {
+    color: var(--gray-400);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.note-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+    letter-spacing: 0.01em;
+    display: block;
+    margin-bottom: var(--space-2);
+}
+
+/* Reason chips */
+.reason-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.reason-chip {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--gray-700);
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-family);
+}
+
+.reason-chip:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-400);
+}
+
+.reason-chip.active {
+    background: var(--accent-600);
+    color: var(--white);
+    border-color: var(--accent-700);
+    box-shadow: var(--shadow-sm);
+}
+
+.reason-chip:focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 2px;
+}
+
+.reason-other {
+    margin-top: var(--space-2);
+}
+
+/* Live preview */
+.note-preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.note-preview {
+    flex: 1;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+    color: var(--gray-900);
+    min-height: 140px;
+    font-family: var(--font-family);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.note-preview .placeholder {
+    color: var(--danger-600);
+    background: var(--danger-50);
+    border: 1px dashed var(--danger-500);
+    border-radius: var(--radius-sm);
+    padding: 0 var(--space-1);
+    font-style: italic;
+    font-weight: 500;
+}
+
+.note-preview .filled {
+    background: var(--accent-50);
+    border: 1px solid var(--accent-500);
+    border-radius: var(--radius-sm);
+    padding: 0 var(--space-1);
+    color: var(--accent-700);
+    font-weight: 600;
+}
+
+.note-actions {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.copy-note-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--white);
+    background: var(--accent-600);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    font-family: var(--font-family);
+}
+
+.copy-note-btn:hover:not(:disabled) {
+    background: var(--accent-700);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.copy-note-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.copy-note-btn:disabled {
+    background: var(--gray-300);
+    color: var(--gray-500);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.copy-note-btn.copied {
+    background: var(--success-600);
+}
+
+.reset-note-btn {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--gray-600);
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-family);
+}
+
+.reset-note-btn:hover {
+    background: var(--gray-200);
+    color: var(--gray-700);
 }
 
 /* ===== Footer ===== */

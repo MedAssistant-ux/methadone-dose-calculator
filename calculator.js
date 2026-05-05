@@ -41,6 +41,8 @@ const resultWarning = document.getElementById('resultWarning');
 const clearFormBtn = document.getElementById('clearFormBtn');
 const historyList = document.getElementById('historyList');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+const chartDetails = document.getElementById('chartDetails');
+const chartTable = document.querySelector('.chart-table');
 
 // ===== Utility Functions =====
 
@@ -267,7 +269,63 @@ function clearForm() {
     clearAllErrors();
     resultContainer.classList.add('hidden');
     clearFormBtn.classList.add('hidden');
+    clearChartHighlight();
     lastDoseInput.focus();
+}
+
+// ===== Dosing Chart Highlight =====
+
+/**
+ * Removes any active range/row highlights from the chart.
+ */
+function clearChartHighlight() {
+    if (!chartTable) return;
+    chartTable.querySelectorAll('tbody.range-active').forEach(el => el.classList.remove('range-active'));
+    chartTable.querySelectorAll('tr.row-active').forEach(el => el.classList.remove('row-active'));
+}
+
+/**
+ * Highlights the chart row that corresponds to the calculator's inputs,
+ * and auto-expands the chart so the highlight is visible.
+ * @param {number} lastDose - Rounded last verified dose in mg
+ * @param {number} daysAbsent - Consecutive days absent
+ */
+function highlightChart(lastDose, daysAbsent) {
+    if (!chartTable) return;
+    clearChartHighlight();
+
+    // Determine matching range
+    let rangeKey = null;
+    if (lastDose > 300) {
+        rangeKey = 'over-300';
+    } else if (lastDose >= 30) {
+        rangeKey = getDoseRangeKey(lastDose);
+    }
+    if (!rangeKey) return;
+
+    const rangeBody = chartTable.querySelector(`tbody[data-range="${rangeKey}"]`);
+    if (!rangeBody) return;
+    rangeBody.classList.add('range-active');
+
+    // Determine matching row within range
+    let dayKey = null;
+    if (rangeKey === 'over-300' && daysAbsent >= 2) {
+        dayKey = '2+';
+    } else if (daysAbsent >= 2 && daysAbsent <= 6) {
+        dayKey = String(daysAbsent);
+    } else if (daysAbsent >= 7) {
+        dayKey = '7+';
+    }
+
+    if (dayKey) {
+        const row = rangeBody.querySelector(`tr[data-days="${dayKey}"]`);
+        if (row) row.classList.add('row-active');
+    }
+
+    // Auto-expand the chart so the highlight is visible
+    if (chartDetails && !chartDetails.open) {
+        chartDetails.open = true;
+    }
 }
 
 // ===== History Functions =====
@@ -431,6 +489,8 @@ form.addEventListener('submit', function(e) {
     const result = calculateRestartDose(lastDose, daysAbsent);
     displayResult(result);
     addToHistory(result);
+    highlightChart(lastDose, daysAbsent);
+    autofillNote(result, lastDose, daysAbsent);
 });
 
 // Clear inline errors as the user types
@@ -440,8 +500,199 @@ daysAbsentInput.addEventListener('input', function() { clearError(this); });
 clearFormBtn.addEventListener('click', clearForm);
 clearHistoryBtn.addEventListener('click', clearHistory);
 
+// ===== Note Generator =====
+
+const NOTE_PREFS_KEY = 'methadone_note_prefs';
+
+const noteEls = {
+    days: document.getElementById('noteDays'),
+    dose: document.getElementById('noteDose'),
+    increase: document.getElementById('noteIncrease'),
+    freq: document.getElementById('noteFreq'),
+    doctor: document.getElementById('noteDoctor'),
+    reasonOther: document.getElementById('noteReasonOther'),
+    chips: document.querySelectorAll('.reason-chip'),
+    preview: document.getElementById('notePreview'),
+    copyBtn: document.getElementById('copyNoteBtn'),
+    resetBtn: document.getElementById('resetNoteBtn'),
+};
+
+let activeReason = null;
+
+function loadNotePrefs() {
+    try {
+        const raw = localStorage.getItem(NOTE_PREFS_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveNotePrefs() {
+    try {
+        const prefs = {
+            doctor: noteEls.doctor.value.trim(),
+            increase: noteEls.increase.value,
+            freq: noteEls.freq.value,
+        };
+        localStorage.setItem(NOTE_PREFS_KEY, JSON.stringify(prefs));
+    } catch (e) {}
+}
+
+function selectReason(reason) {
+    activeReason = reason;
+    noteEls.chips.forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.reason === reason);
+    });
+    if (reason === '__other__') {
+        noteEls.reasonOther.classList.remove('hidden');
+        noteEls.reasonOther.focus();
+    } else {
+        noteEls.reasonOther.classList.add('hidden');
+    }
+    renderNotePreview();
+}
+
+function getReasonText() {
+    if (activeReason === '__other__') {
+        return noteEls.reasonOther.value.trim();
+    }
+    return activeReason || '';
+}
+
+function slot(value, hint) {
+    if (value !== '' && value != null) {
+        return `<span class="filled">${escapeHTML(value)}</span>`;
+    }
+    return `<span class="placeholder">[${escapeHTML(hint)}]</span>`;
+}
+
+function renderNotePreview() {
+    const days = noteEls.days.value.trim();
+    const reason = getReasonText();
+    const dose = noteEls.dose.value.trim();
+    const increase = noteEls.increase.value.trim();
+    const freq = noteEls.freq.value.trim();
+    const doctor = noteEls.doctor.value.trim();
+
+    const dayWord = days === '1' ? 'day' : 'day';
+    const freqWord = freq === '1' ? 'day' : 'days';
+
+    const html =
+        'Patient was a ' + slot(days, 'days') + ' ' + dayWord + ' no show. ' +
+        'Patient reports no shows for ' + slot(reason, 'reason') + '. ' +
+        'Reinstate at ' + slot(dose, 'dose') + ' mg and increase by ' + slot(increase, 'amount') + ' mg every ' +
+        slot(freq, 'days') + ' ' + freqWord + ' VO DR. ' + slot(doctor, 'doctor') + ', MD.';
+
+    noteEls.preview.innerHTML = html;
+
+    const allFilled = days && reason && dose && increase && freq && doctor;
+    noteEls.copyBtn.disabled = !allFilled;
+}
+
+function getPlainNoteText() {
+    const days = noteEls.days.value.trim();
+    const reason = getReasonText();
+    const dose = noteEls.dose.value.trim();
+    const increase = noteEls.increase.value.trim();
+    const freq = noteEls.freq.value.trim();
+    const doctor = noteEls.doctor.value.trim();
+    const freqWord = freq === '1' ? 'day' : 'days';
+
+    return `Patient was a ${days} day no show. Patient reports no shows for ${reason}. ` +
+           `Reinstate at ${dose} mg and increase by ${increase} mg every ${freq} ${freqWord} ` +
+           `VO DR. ${doctor}, MD.`;
+}
+
+async function copyNote() {
+    if (noteEls.copyBtn.disabled) return;
+    const text = getPlainNoteText();
+
+    let copied = false;
+    try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+    } catch (e) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            copied = document.execCommand('copy');
+        } catch (err) {}
+        document.body.removeChild(textarea);
+    }
+
+    const btn = noteEls.copyBtn;
+    const textEl = btn.querySelector('.btn-text');
+    const iconEl = btn.querySelector('.btn-icon');
+    const originalText = textEl.textContent;
+    const originalIcon = iconEl.textContent;
+
+    if (copied) {
+        textEl.textContent = 'Copied';
+        iconEl.textContent = '✓';
+        btn.classList.add('copied');
+    } else {
+        textEl.textContent = 'Copy failed';
+    }
+
+    setTimeout(() => {
+        textEl.textContent = originalText;
+        iconEl.textContent = originalIcon;
+        btn.classList.remove('copied');
+    }, 1500);
+}
+
+function resetNote() {
+    activeReason = null;
+    noteEls.chips.forEach(chip => chip.classList.remove('active'));
+    noteEls.reasonOther.value = '';
+    noteEls.reasonOther.classList.add('hidden');
+    renderNotePreview();
+}
+
+/**
+ * Auto-fills the note generator from the latest calculation.
+ * Days always fills; dose only fills when numeric (skips SEE PROVIDER outcomes).
+ */
+function autofillNote(result, lastDose, daysAbsent) {
+    noteEls.days.value = daysAbsent;
+    if (typeof result.restartDose === 'number' && result.restartDose > 0) {
+        noteEls.dose.value = result.restartDose;
+    }
+    renderNotePreview();
+}
+
+function initNoteGenerator() {
+    const prefs = loadNotePrefs();
+    if (prefs.doctor) noteEls.doctor.value = prefs.doctor;
+    noteEls.increase.value = prefs.increase || '10';
+    noteEls.freq.value = prefs.freq || '1';
+
+    noteEls.chips.forEach(chip => {
+        chip.addEventListener('click', () => selectReason(chip.dataset.reason));
+    });
+
+    [noteEls.days, noteEls.dose, noteEls.increase, noteEls.freq, noteEls.doctor, noteEls.reasonOther]
+        .forEach(el => {
+            el.addEventListener('input', () => {
+                renderNotePreview();
+                saveNotePrefs();
+            });
+        });
+
+    noteEls.copyBtn.addEventListener('click', copyNote);
+    noteEls.resetBtn.addEventListener('click', resetNote);
+
+    renderNotePreview();
+}
+
 // ===== Initialize =====
 document.addEventListener('DOMContentLoaded', function() {
     renderHistory();
+    initNoteGenerator();
     lastDoseInput.focus();
 });
