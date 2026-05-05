@@ -321,11 +321,6 @@ function highlightChart(lastDose, daysAbsent) {
         const row = rangeBody.querySelector(`tr[data-days="${dayKey}"]`);
         if (row) row.classList.add('row-active');
     }
-
-    // Auto-expand the chart so the highlight is visible
-    if (chartDetails && !chartDetails.open) {
-        chartDetails.open = true;
-    }
 }
 
 // ===== History Functions =====
