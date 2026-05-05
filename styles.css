@@ -825,14 +825,16 @@ body {
     margin-bottom: var(--space-2);
 }
 
-/* Reason chips */
-.reason-chips {
+/* Chip selectors (reason + prescriber title) */
+.reason-chips,
+.title-chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
 }
 
-.reason-chip {
+.reason-chip,
+.title-chip {
     padding: var(--space-2) var(--space-3);
     font-size: var(--font-size-sm);
     font-weight: 500;
@@ -845,24 +847,28 @@ body {
     font-family: var(--font-family);
 }
 
-.reason-chip:hover {
+.reason-chip:hover,
+.title-chip:hover {
     background: var(--gray-200);
     border-color: var(--gray-400);
 }
 
-.reason-chip.active {
+.reason-chip.active,
+.title-chip.active {
     background: var(--accent-600);
     color: var(--white);
     border-color: var(--accent-700);
     box-shadow: var(--shadow-sm);
 }
 
-.reason-chip:focus-visible {
+.reason-chip:focus-visible,
+.title-chip:focus-visible {
     outline: 2px solid var(--accent-500);
     outline-offset: 2px;
 }
 
-.reason-other {
+.reason-other,
+.title-other {
     margin-top: var(--space-2);
 }
 
@@ -873,7 +879,30 @@ body {
     gap: var(--space-3);
 }
 
-.note-preview {
+.note-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.note-preview-header .note-label {
+    margin-bottom: 0;
+}
+
+.note-edited-badge {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--warning-600);
+    background: var(--warning-100);
+    border: 1px solid var(--warning-500);
+    border-radius: 999px;
+    padding: 2px var(--space-2);
+    letter-spacing: 0.02em;
+}
+
+textarea.note-preview {
     flex: 1;
     background: var(--gray-50);
     border: 1px solid var(--gray-300);
@@ -882,29 +911,25 @@ body {
     font-size: var(--font-size-base);
     line-height: 1.7;
     color: var(--gray-900);
-    min-height: 140px;
+    min-height: 160px;
     font-family: var(--font-family);
     white-space: pre-wrap;
     word-break: break-word;
+    resize: vertical;
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
 }
 
-.note-preview .placeholder {
-    color: var(--danger-600);
-    background: var(--danger-50);
-    border: 1px dashed var(--danger-500);
-    border-radius: var(--radius-sm);
-    padding: 0 var(--space-1);
-    font-style: italic;
-    font-weight: 500;
+textarea.note-preview:hover {
+    border-color: var(--gray-400);
 }
 
-.note-preview .filled {
-    background: var(--accent-50);
-    border: 1px solid var(--accent-500);
-    border-radius: var(--radius-sm);
-    padding: 0 var(--space-1);
-    color: var(--accent-700);
-    font-weight: 600;
+textarea.note-preview:focus {
+    outline: none;
+    border-color: var(--accent-500);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 .note-actions {

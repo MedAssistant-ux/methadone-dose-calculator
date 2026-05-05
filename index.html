@@ -360,7 +360,24 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="noteDoctor">Doctor name (remembered)</label>
+                            <span class="note-label">Prescriber title</span>
+                            <div class="title-chips" role="group" aria-label="Prescriber title">
+                                <button type="button" class="title-chip" data-title="dr">Dr / MD</button>
+                                <button type="button" class="title-chip" data-title="np">NP</button>
+                                <button type="button" class="title-chip" data-title="other">Other…</button>
+                            </div>
+                            <input
+                                type="text"
+                                id="noteOtherCreds"
+                                class="title-other hidden"
+                                placeholder="Credentials (e.g., PA-C, DO, PharmD)"
+                                autocomplete="off"
+                                maxlength="40"
+                            >
+                        </div>
+
+                        <div class="input-group">
+                            <label for="noteDoctor">Prescriber name (remembered)</label>
                             <input
                                 type="text"
                                 id="noteDoctor"
@@ -372,12 +389,24 @@
                     </div>
 
                     <div class="note-preview-wrapper">
-                        <span class="note-label">Generated Note</span>
-                        <div id="notePreview" class="note-preview" aria-live="polite"></div>
+                        <div class="note-preview-header">
+                            <span class="note-label">Generated Note (editable)</span>
+                            <span class="note-edited-badge hidden" id="noteEditedBadge">Manually edited</span>
+                        </div>
+                        <textarea
+                            id="notePreview"
+                            class="note-preview"
+                            rows="6"
+                            spellcheck="true"
+                            aria-label="Generated patient note, editable"
+                        ></textarea>
                         <div class="note-actions">
                             <button type="button" id="copyNoteBtn" class="copy-note-btn">
                                 <span class="btn-text">Copy Note</span>
                                 <span class="btn-icon">&#128203;</span>
+                            </button>
+                            <button type="button" id="regenNoteBtn" class="reset-note-btn">
+                                Regenerate
                             </button>
                             <button type="button" id="resetNoteBtn" class="reset-note-btn">
                                 Reset

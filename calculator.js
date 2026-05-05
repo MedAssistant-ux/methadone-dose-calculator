@@ -512,12 +512,15 @@ const noteEls = {
     doctor: document.getElementById('noteDoctor'),
     reasonOther: document.getElementById('noteReasonOther'),
     chips: document.querySelectorAll('.reason-chip'),
+    titleChips: document.querySelectorAll('.title-chip'),
+    otherCreds: document.getElementById('noteOtherCreds'),
     preview: document.getElementById('notePreview'),
     copyBtn: document.getElementById('copyNoteBtn'),
     resetBtn: document.getElementById('resetNoteBtn'),
 };
 
 let activeReason = null;
+let activeTitle = 'dr';
 
 function loadNotePrefs() {
     try {
@@ -534,9 +537,47 @@ function saveNotePrefs() {
             doctor: noteEls.doctor.value.trim(),
             increase: noteEls.increase.value,
             freq: noteEls.freq.value,
+            title: activeTitle,
+            otherCreds: noteEls.otherCreds.value.trim(),
         };
         localStorage.setItem(NOTE_PREFS_KEY, JSON.stringify(prefs));
     } catch (e) {}
+}
+
+/**
+ * Applies a prescriber title selection without persisting (used during init).
+ */
+function applyTitle(title) {
+    activeTitle = title;
+    noteEls.titleChips.forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.title === title);
+    });
+    noteEls.otherCreds.classList.toggle('hidden', title !== 'other');
+}
+
+function selectTitle(title) {
+    applyTitle(title);
+    if (title === 'other') noteEls.otherCreds.focus();
+    renderNotePreview();
+    saveNotePrefs();
+}
+
+/**
+ * Returns the courtesy-title prefix for the active prescriber type.
+ * "DR." for Dr/MD, empty for NP and Other.
+ */
+function getTitlePrefix() {
+    return activeTitle === 'dr' ? 'DR. ' : '';
+}
+
+/**
+ * Returns the credential suffix string for the active prescriber type.
+ * "MD" for Dr, "NP" for NP, user-supplied for Other.
+ */
+function getCredentials() {
+    if (activeTitle === 'dr') return 'MD';
+    if (activeTitle === 'np') return 'NP';
+    return noteEls.otherCreds.value.trim();
 }
 
 function selectReason(reason) {
@@ -560,53 +601,79 @@ function getReasonText() {
     return activeReason || '';
 }
 
-function slot(value, hint) {
-    if (value !== '' && value != null) {
-        return `<span class="filled">${escapeHTML(value)}</span>`;
-    }
-    return `<span class="placeholder">[${escapeHTML(hint)}]</span>`;
+// Tracks the last text we auto-generated, so we can detect manual edits
+// (textarea value differs from last generated → user has edited).
+let lastGeneratedText = '';
+
+function isNoteManuallyEdited() {
+    return noteEls.preview.value !== lastGeneratedText;
 }
 
+function updateCopyButtonState() {
+    const text = noteEls.preview.value.trim();
+    const hasPlaceholder = /\[[^\]\n]+\]/.test(text);
+    noteEls.copyBtn.disabled = !text || hasPlaceholder;
+}
+
+function updateEditedBadge() {
+    const badge = document.getElementById('noteEditedBadge');
+    if (!badge) return;
+    badge.classList.toggle('hidden', !isNoteManuallyEdited() || noteEls.preview.value === '');
+}
+
+/**
+ * Renders the auto-generated note into the textarea, but only when the user
+ * has not manually edited it. Always updates the copy-button state.
+ */
 function renderNotePreview() {
-    const days = noteEls.days.value.trim();
-    const reason = getReasonText();
-    const dose = noteEls.dose.value.trim();
-    const increase = noteEls.increase.value.trim();
-    const freq = noteEls.freq.value.trim();
-    const doctor = noteEls.doctor.value.trim();
-
-    const dayWord = days === '1' ? 'day' : 'day';
-    const freqWord = freq === '1' ? 'day' : 'days';
-
-    const html =
-        'Patient was a ' + slot(days, 'days') + ' ' + dayWord + ' no show. ' +
-        'Patient reports no shows for ' + slot(reason, 'reason') + '. ' +
-        'Reinstate at ' + slot(dose, 'dose') + ' mg and increase by ' + slot(increase, 'amount') + ' mg every ' +
-        slot(freq, 'days') + ' ' + freqWord + ' VO DR. ' + slot(doctor, 'doctor') + ', MD.';
-
-    noteEls.preview.innerHTML = html;
-
-    const allFilled = days && reason && dose && increase && freq && doctor;
-    noteEls.copyBtn.disabled = !allFilled;
+    const text = buildAutoNoteText();
+    if (!isNoteManuallyEdited()) {
+        noteEls.preview.value = text;
+        lastGeneratedText = text;
+    }
+    updateCopyButtonState();
+    updateEditedBadge();
 }
 
-function getPlainNoteText() {
-    const days = noteEls.days.value.trim();
-    const reason = getReasonText();
-    const dose = noteEls.dose.value.trim();
-    const increase = noteEls.increase.value.trim();
-    const freq = noteEls.freq.value.trim();
-    const doctor = noteEls.doctor.value.trim();
-    const freqWord = freq === '1' ? 'day' : 'days';
+/**
+ * Force-rewrites the textarea from current field values, discarding any
+ * manual edits. Used by the Regenerate and Reset buttons.
+ */
+function regenerateNote() {
+    const text = buildAutoNoteText();
+    noteEls.preview.value = text;
+    lastGeneratedText = text;
+    updateCopyButtonState();
+    updateEditedBadge();
+}
+
+/**
+ * Builds the auto-generated note text from current field values.
+ * Missing fields are rendered as [placeholder] markers so the user can see
+ * what's incomplete in the editable textarea.
+ */
+function buildAutoNoteText() {
+    const days = noteEls.days.value.trim() || '[days]';
+    const reason = getReasonText() || '[reason]';
+    const dose = noteEls.dose.value.trim() || '[dose]';
+    const increase = noteEls.increase.value.trim() || '[amount]';
+    const freqRaw = noteEls.freq.value.trim();
+    const freq = freqRaw || '[days]';
+    const doctor = noteEls.doctor.value.trim() || '[name]';
+    const credsRaw = getCredentials();
+    const creds = credsRaw || '[credentials]';
+    const prefix = getTitlePrefix();
+    const freqWord = freqRaw === '1' ? 'day' : 'days';
 
     return `Patient was a ${days} day no show. Patient reports no shows for ${reason}. ` +
            `Reinstate at ${dose} mg and increase by ${increase} mg every ${freq} ${freqWord} ` +
-           `VO DR. ${doctor}, MD.`;
+           `VO ${prefix}${doctor}, ${creds}.`;
 }
 
 async function copyNote() {
     if (noteEls.copyBtn.disabled) return;
-    const text = getPlainNoteText();
+    const text = noteEls.preview.value.trim();
+    if (!text) return;
 
     let copied = false;
     try {
@@ -651,7 +718,7 @@ function resetNote() {
     noteEls.chips.forEach(chip => chip.classList.remove('active'));
     noteEls.reasonOther.value = '';
     noteEls.reasonOther.classList.add('hidden');
-    renderNotePreview();
+    regenerateNote();
 }
 
 /**
@@ -671,12 +738,19 @@ function initNoteGenerator() {
     if (prefs.doctor) noteEls.doctor.value = prefs.doctor;
     noteEls.increase.value = prefs.increase || '10';
     noteEls.freq.value = prefs.freq || '1';
+    if (prefs.otherCreds) noteEls.otherCreds.value = prefs.otherCreds;
+    applyTitle(prefs.title || 'dr');
 
     noteEls.chips.forEach(chip => {
         chip.addEventListener('click', () => selectReason(chip.dataset.reason));
     });
 
-    [noteEls.days, noteEls.dose, noteEls.increase, noteEls.freq, noteEls.doctor, noteEls.reasonOther]
+    noteEls.titleChips.forEach(chip => {
+        chip.addEventListener('click', () => selectTitle(chip.dataset.title));
+    });
+
+    [noteEls.days, noteEls.dose, noteEls.increase, noteEls.freq,
+     noteEls.doctor, noteEls.reasonOther, noteEls.otherCreds]
         .forEach(el => {
             el.addEventListener('input', () => {
                 renderNotePreview();
@@ -684,10 +758,19 @@ function initNoteGenerator() {
             });
         });
 
+    noteEls.preview.addEventListener('input', () => {
+        updateCopyButtonState();
+        updateEditedBadge();
+    });
+
+    const regenBtn = document.getElementById('regenNoteBtn');
+    if (regenBtn) regenBtn.addEventListener('click', regenerateNote);
+
     noteEls.copyBtn.addEventListener('click', copyNote);
     noteEls.resetBtn.addEventListener('click', resetNote);
 
-    renderNotePreview();
+    // Initial render — textarea is empty, so the auto-generated text writes through.
+    regenerateNote();
 }
 
 // ===== Initialize =====
