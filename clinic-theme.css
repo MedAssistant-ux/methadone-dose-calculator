@@ -1,0 +1,106 @@
+/* Screen presentation only. Keep calculator logic, storage, chart content,
+   and original print rules in calculator.js, index.html, and styles.css. */
+:root {
+    --primary-900: #193d35;
+    --primary-800: #213c38;
+    --primary-700: #29493f;
+    --primary-600: #405d53;
+    --primary-500: #607870;
+    --primary-400: #607870;
+    --primary-300: #bacbc4;
+    --primary-100: #eaf0ed;
+    --primary-50: #f3f6f5;
+    --accent-700: #194e3b;
+    --accent-600: #24654f;
+    --accent-500: #327b61;
+    --accent-100: #dfede5;
+    --accent-50: #f0f6f2;
+    --success-600: #24654f;
+    --success-500: #327b61;
+    --success-100: #dfede5;
+    --success-50: #f0f6f2;
+    --warning-600: #875410;
+    --danger-600: #b12f2f;
+    --gray-900: #213c38;
+    --gray-700: #405d53;
+    --gray-600: #405d53;
+    --gray-500: #607870;
+    --gray-400: #607870;
+    --gray-300: #bacbc4;
+    --gray-200: #d4dfdb;
+    --gray-100: #f3f6f5;
+    --gray-50: #f7faf8;
+    --font-family: system-ui, sans-serif;
+    --font-size-xs: .8125rem;
+    --font-size-sm: .9375rem;
+    --radius-md: 7px;
+    --radius-xl: 10px;
+    --shadow-sm: 0 2px 3px #183e3205;
+    --shadow-md: 0 2px 3px #183e3205;
+    --shadow-lg: 0 2px 3px #183e3205;
+}
+body { color: #213c38; line-height: 1.45; }
+.app-container { max-width: 1268px; padding: 32px; }
+.app-header { padding: 24px; text-align: left; background: white; color: #213c38; border: 1px solid #d4dfdb; border-top: 3px solid #327b61; box-shadow: none; }
+.clinic-eyebrow { margin-bottom: 8px; color: #24654f; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.app-header h1 { font-size: 30px; font-weight: 750; letter-spacing: -.035em; color: #213c38; }
+.subtitle { color: #607870; font-size: 16px; font-weight: 400; margin-top: 6px; }
+.main-content { gap: 24px; flex: none; }
+.calculator-card, .dosing-chart-card, .history-card, .note-card { box-shadow: none; }
+.calculator-card { border-top: 3px solid #327b61; }
+.dosing-chart-card { border-top: 3px solid #607870; }
+.calculator-card > h2, .dosing-chart-card summary, .history-header, .note-card .note-header { background: #eaf0ed; color: #213c38; padding: 18px 20px; border-bottom: 1px solid #d4dfdb; }
+.calculator-card > h2, .history-header h2, .note-card h2, .chart-summary-title h2 { color: #213c38; font-size: 20px; font-weight: 700; letter-spacing: -.025em; }
+.chart-summary-title h2 { padding: 0; background: transparent; }
+.chart-summary-title .chart-subtitle { color: #607870; line-height: 1.45; margin-top: 4px; }
+.chart-toggle-icon { color: #24654f; }
+.dosing-chart-card summary:hover { background: #e1ebe5; }
+.calculator-form { gap: 20px; padding: 24px; }
+.input-group label, .note-label { color: #405d53; font-size: 14px; font-weight: 600; }
+.input-group input, .note-fields .input-group input { min-width: 0; min-height: 46px; font-size: 16px; padding: 11px 12px; box-shadow: none; }
+.input-group input:focus, .note-fields .input-group input:focus, textarea.note-preview:focus { border-color: #327b61; box-shadow: 0 0 0 3px #327b6126; }
+button { min-height: 42px; font-family: inherit; font-weight: 600; }
+.calculate-btn, .copy-note-btn { background: #24654f; border: 1px solid #24654f; box-shadow: none; font-size: 16px; }
+.calculate-btn:hover, .copy-note-btn:hover:not(:disabled) { background: #194e3b; transform: none; box-shadow: none; }
+.clear-form-btn, .reset-note-btn, .clear-history-btn { background: white; color: #24654f; border: 1px solid #bacbc4; border-radius: 7px; font-size: 14px; padding: 9px 12px; }
+.clear-form-btn:hover, .reset-note-btn:hover, .clear-history-btn:hover { color: #194e3b; background: #edf4f1; border-color: #819c91; }
+.clear-form-btn { margin-top: 16px; }
+.result-container { margin: 0 24px; }
+.result-card { border-radius: 8px; padding: 22px; }
+.result-value { font-size: 38px; font-variant-numeric: tabular-nums; }
+.result-warning { line-height: 1.55; }
+.chart-table { font-size: 14px; }
+.chart-table thead th { white-space: normal; }
+.chart-table tbody td, .chart-table tbody th { padding: 10px 14px; }
+.chart-scroll { max-height: 620px; overflow: auto; scrollbar-color: #a5bcb1 #f3f6f5; }
+.chart-range-label { min-width: 85px; font-size: 14px; }
+.history-header { flex-wrap: wrap; gap: 12px; }
+.history-list { padding: 20px; }
+.history-item { border: 1px solid #d4dfdb; border-left-width: 4px; padding: 14px 16px; }
+.history-item-header { gap: 12px; flex-wrap: wrap; }
+.note-card { margin-top: 24px; }
+.note-body { padding: 24px; gap: 28px; }
+.reason-chip, .title-chip { border-radius: 7px; background: white; }
+.reason-chip.active, .title-chip.active { background: #24654f; border-color: #24654f; color: white; box-shadow: none; }
+textarea.note-preview { min-height: 230px; background: #f7faf8; box-shadow: none; line-height: 1.65; }
+.note-actions { flex-wrap: wrap; gap: 10px; }
+.copy-note-btn { min-width: 125px; }
+.app-footer { margin-top: 24px; padding-top: 18px; border-top: 1px solid #d4dfdb; }
+.disclaimer { text-align: left; color: #607870; }
+:is(button, input, textarea, summary):focus-visible { outline: 3px solid #1f927a; outline-offset: 3px; }
+.dosing-chart-card summary:focus-visible { outline: 3px solid #1f927a; outline-offset: -4px; }
+@media (max-width: 760px) {
+    .app-container { padding: 20px 14px; }
+    .app-header { padding: 20px 16px; }
+    .app-header h1 { font-size: 25px; }
+    .calculator-form, .note-body { padding: 20px 16px; }
+    .result-container { margin: 0 16px; }
+    .chart-table tbody td, .chart-table tbody th { padding: 10px; }
+    .history-list { padding: 16px; }
+    .note-body { grid-template-columns: minmax(0, 1fr); }
+    .note-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .result-value { font-size: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
